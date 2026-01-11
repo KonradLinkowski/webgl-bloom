@@ -8,8 +8,27 @@ import { BlurPass } from './post/blur-pass';
 import { DisplayPass } from './post/display-pass';
 import { CombinePass } from './post/combine-pass';
 import { compose } from './utils/combine';
+import { Slider } from './ui/slider';
 
-const { gl, canvas } = createContext();
+const $app = document.querySelector('#app')
+const $ui = document.querySelector('#ui');
+const { gl, canvas } = createContext($app);
+
+const settings = {
+  bloomIntensity: 1,
+  threshold: 0
+}
+
+const bloomSlider = new Slider($ui, 'Bloom Intensity', 0, 5, settings.bloomIntensity);
+const thresholdSlider = new Slider($ui, 'Threshold', 0, 1, settings.threshold);
+
+thresholdSlider.onChange = (value) => {
+  settings.threshold = value;
+};
+
+bloomSlider.onChange = (value) => {
+  settings.bloomIntensity = value;
+};
 
 const batch = new RectBatch(gl);
 const bright = new BrightPass(gl);
@@ -74,12 +93,12 @@ function loop() {
   batch.end(renderTarget);
 
   compose(renderTarget, [
-    (input) => bright.render(brightTarget, input.texture, 0),
+    (input) => bright.render(brightTarget, input.texture, settings.threshold),
     (input) => blur.render(blurVTarget, input, [0, 1]),
     (input) => blur.render(blurHTarget, input, [1, 0]),
     (input) => blur.render(blurVTarget, input, [0, 1]),
     (input) => blur.render(blurHTarget, input, [1, 0]),
-    (input) => combine.render(combineTarget, renderTarget.texture, input.texture, 1.2),
+    (input) => combine.render(combineTarget, renderTarget.texture, input.texture, settings.bloomIntensity),
     (input) => display.render(input.texture)
   ])();
 

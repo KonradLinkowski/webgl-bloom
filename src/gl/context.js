@@ -1,6 +1,6 @@
-export function createContext() {
+export function createContext(parent = document.body) {
   const canvas = document.createElement('canvas');
-  document.body.appendChild(canvas);
+  parent.appendChild(canvas);
   const gl = canvas.getContext('webgl');
 
   function resize() {
