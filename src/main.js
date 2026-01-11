@@ -71,13 +71,18 @@ const blurVTarget = createRenderTarget(gl, { scale: 0.25 });
 const blurHTarget = createRenderTarget(gl, { scale: 0.25 });
 const combineTarget = createRenderTarget(gl);
 
+let lastTime = 0;
+
 requestAnimationFrame(loop);
 
-function loop() {
+function loop(time) {
+  const deltaTime = time - lastTime;
+  lastTime = time;
+
   batch.begin(renderTarget);
   for (const rect of dvdRects) {
-    rect.x += rect.dx;
-    rect.y += rect.dy;
+    rect.x += rect.dx * deltaTime * 0.1;
+    rect.y += rect.dy * deltaTime * 0.1;
 
     if (rect.x < 0 || rect.x + rect.w > canvas.width) {
       rect.dx *= -1;
